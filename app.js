@@ -5,6 +5,8 @@ var path = require('path');
 var logger = require('morgan');
 const session = require('express-session');
 const FileStore = require('session-file-store')(session);
+const passport = require('passport');
+const authenticate = require('./authenticate');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -47,18 +49,24 @@ app.use(session({
     store: new FileStore()
 }));
 
+//these are only necessary if you uses session based authentication
+//these are two middleware functions provided by passport to check if a session exists for a user
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 
 function auth(req,res, next) {
     //console.log('header', req.headers);
     //signedCookies comes from cookieParser
-    console.log(req.session);
-
+    //console.log(req.session);
+    console.log(req.user);
     //no access to signedCookies because we're not using cookieParser
     //if (!req.signedCookies.user) {
 
-      if (!req.session.user) {
+        if (!req.user) {
+     // if (!req.session.user) {
         //being handled by user router
           // const authHeader = req.headers.authorization;
           // if (!authHeader) {
@@ -66,7 +74,7 @@ function auth(req,res, next) {
             //res.setHeader('WWW-Authenticate', 'Basic');
             err.status = 401;
             return next(err);
-          //}
+          }
       
           // const auth = Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
           // const user = auth[0];
@@ -82,19 +90,21 @@ function auth(req,res, next) {
           //   err.status = 401;
           //   return next(err);
           // }
-        } else {
+        else {
           //if (req.signedCookies.user === 'admin') {
             // if (req.session.user === 'admin') {
-              if (req.session.user === 'authenticated') {
+          //     if (req.session.user === 'authenticated') {
+          //   return next();
+          // } else {
+          //   const err = new Error('You are not authenticated!');
+          //   err.status = 401;
+            // return next(err);
             return next();
-          } else {
-            const err = new Error('You are not authenticated!');
-            err.status = 401;
-            return next(err);
           }
         }
+      
     
-}
+
 
 app.use(auth);
 
