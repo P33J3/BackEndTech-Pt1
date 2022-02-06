@@ -13,6 +13,16 @@ const userSchema = new Schema({
     //     type: String,
     //     required: true
     // },
+
+    //added first name and last name below in order to know fetch users who have added comments
+    firstname: {
+        type: String,
+        default: ''
+    },
+    lastname: {
+        type: String,
+        default: ''
+    },
     admin: {
         type: Boolean,
         default: false
